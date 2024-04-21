@@ -1,0 +1,30 @@
+[package]
+name = "fcunlock"
+authors = ["Chudov Sergei <chudov42@gmail.com>"]
+description = ""
+license = "MIT"
+version = "0.2.0"
+edition = "2021"
+readme = "README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+clap = { version = "4.5.4", features = ["derive"], optional = true }
+tempfile = "3.10.1"
+libc = "0.2.153"
+log = "0.4.21"
+simple_logger = "4.3.3"
+
+[features]
+build-fcunlock-cli = ["clap"]
+
+[lib]
+name = "fcunlock"
+path = "src/lib.rs"
+
+[[bin]]
+name = "fcunlock-cli"
+path = "src/cli.rs"
+
+required-features = ["build-fcunlock-cli"]
