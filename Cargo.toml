@@ -3,7 +3,7 @@ name = "fcunlock"
 authors = ["Chudov Sergei <chudov42@gmail.com>"]
 description = ""
 license = "MIT"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 readme = "README.md"
 
@@ -26,5 +26,4 @@ path = "src/lib.rs"
 [[bin]]
 name = "fcunlock-cli"
 path = "src/cli.rs"
-
 required-features = ["build-fcunlock-cli"]
