@@ -8,7 +8,7 @@ extern crate log;
 
 mod fcntl;
 
-use log::{error, info};
+use log::{error, info, warn};
 use std::fs::{copy, read_dir, rename, File};
 use std::io::{self, Error};
 use std::path::Path;
@@ -94,11 +94,11 @@ fn unlock_netapp_file(file_path: &Path) -> io::Result<()> {
     let dir = tempdir()?;
 
     if !file_path.is_file() {
-        error!(
+        warn!(
             "This is not a file name: ({})",
             file_path.to_str().unwrap_or(INVALID_UTF8)
         );
-        return Err(Error::from_raw_os_error(libc::ENOENT));
+        return Ok(())
     }
 
     let tmp_file_name = file_path
@@ -150,7 +150,7 @@ fn unlock_netapp_file(file_path: &Path) -> io::Result<()> {
 
     info!(
         "Successfully repaired: ({})",
-        local_tmp_file_path.to_str().unwrap_or(INVALID_UTF8)
+        netapp_tmp_file_path.to_str().unwrap_or(INVALID_UTF8)
     );
 
     Ok(())
