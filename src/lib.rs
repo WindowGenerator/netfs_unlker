@@ -8,16 +8,15 @@ extern crate log;
 
 mod fcntl;
 
-use log::{error, info, warn};
+use log::{debug, error, info, warn};
+use std::collections::VecDeque;
 use std::fs::{copy, read_dir, rename, File};
 use std::io::{self, Error};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use tempfile::tempdir;
-
 
 const INVALID_UTF8: &'static str = "[Invalid UTF-8]";
 const DEVIDER: &'static str = "#############################\n";
-
 
 /// Repairs all files in the specified directory.
 ///
@@ -34,9 +33,10 @@ const DEVIDER: &'static str = "#############################\n";
 /// use std::path::Path;
 ///
 /// let dir_path = Path::new("/path/to/directory");
-/// repair_files_in_directory(dir_path);
+/// let recursive = false;
+/// repair_files_in_directory(dir_path, recursive);
 /// ```
-pub fn repair_files_in_directory(directory_path: &Path) -> io::Result<()> {
+pub fn repair_files_in_directory(directory_path: &Path, recursive: bool) -> io::Result<()> {
     if !directory_path.is_dir() {
         error!(
             "Such directory not found: ({})",
@@ -45,11 +45,18 @@ pub fn repair_files_in_directory(directory_path: &Path) -> io::Result<()> {
         return Err(Error::from_raw_os_error(libc::ENOENT));
     }
 
-    let paths = read_dir(directory_path)?;
-    for path_result in paths {
-        info!("{}", DEVIDER);
-        let path = path_result?;
-        unlock_netapp_file(path.path().as_path())?;
+    let mut buf: VecDeque<PathBuf> = VecDeque::new();
+    buf.push_back(directory_path.to_path_buf());
+
+    while let Some(queue_path) = buf.pop_front() {
+        let paths: Vec<PathBuf> = read_dir(queue_path)?.map(|x| x.unwrap().path()).collect();
+        for path in paths {
+            if path.is_dir() && recursive {
+                buf.push_back(path.clone());
+            } else {
+                unlock_netapp_file(&path)?;
+            }
+        }
     }
 
     Ok(())
@@ -73,7 +80,7 @@ pub fn repair_files_in_directory(directory_path: &Path) -> io::Result<()> {
 /// repair_file(file_path);
 /// ```
 pub fn repair_file(file_path: &Path) -> io::Result<()> {
-    info!("{}", DEVIDER);
+    debug!("{}", DEVIDER);
     unlock_netapp_file(file_path)
 }
 
@@ -86,8 +93,8 @@ pub fn repair_file(file_path: &Path) -> io::Result<()> {
 ///
 /// Returns an `Err` if any step in the repair process fails, including invalid file path or access errors.
 fn unlock_netapp_file(file_path: &Path) -> io::Result<()> {
-    info!(
-        "Starting processing file: ({})",
+    debug!(
+        "Start unlocking file: ({})",
         file_path.to_str().unwrap_or(INVALID_UTF8)
     );
 
@@ -98,7 +105,17 @@ fn unlock_netapp_file(file_path: &Path) -> io::Result<()> {
             "This is not a file name: ({})",
             file_path.to_str().unwrap_or(INVALID_UTF8)
         );
-        return Ok(())
+        return Ok(());
+    }
+
+    let netapp_file = File::open(file_path)?;
+
+    if !fcntl::is_file_locked(&netapp_file) {
+        info!(
+            "File is not locked: ({})",
+            file_path.to_str().unwrap_or(INVALID_UTF8)
+        );
+        return Ok(());
     }
 
     let tmp_file_name = file_path
@@ -115,7 +132,7 @@ fn unlock_netapp_file(file_path: &Path) -> io::Result<()> {
 
     let local_tmp_file_path = dir.path().join(&tmp_file_name);
 
-    info!(
+    debug!(
         "Copy from netapp: netapp ({}) -> local ({})",
         file_path.to_str().unwrap_or(INVALID_UTF8),
         local_tmp_file_path.to_str().unwrap_or(INVALID_UTF8)
@@ -124,7 +141,7 @@ fn unlock_netapp_file(file_path: &Path) -> io::Result<()> {
     copy(&file_path, &local_tmp_file_path)?;
 
     let tmp_file = File::open(&local_tmp_file_path)?;
-    info!(
+    debug!(
         "Unlock file: ({})",
         local_tmp_file_path.to_str().unwrap_or(INVALID_UTF8)
     );
@@ -135,13 +152,13 @@ fn unlock_netapp_file(file_path: &Path) -> io::Result<()> {
         .ok_or_else(|| Error::from_raw_os_error(libc::EINVAL))?
         .join(&tmp_file_name);
 
-    info!(
+    debug!(
         "Copy to back tmp path: local ({}) -> netapp ({})",
         local_tmp_file_path.to_str().unwrap_or(INVALID_UTF8),
         netapp_tmp_file_path.to_str().unwrap_or(INVALID_UTF8)
     );
     copy(&local_tmp_file_path, &netapp_tmp_file_path)?;
-    info!(
+    debug!(
         "Atomic file rename: netapp({}) -> netapp ({})",
         netapp_tmp_file_path.to_str().unwrap_or(INVALID_UTF8),
         file_path.to_str().unwrap_or(INVALID_UTF8)
@@ -149,7 +166,7 @@ fn unlock_netapp_file(file_path: &Path) -> io::Result<()> {
     rename(&netapp_tmp_file_path, &file_path)?;
 
     info!(
-        "Successfully repaired: ({})",
+        "Successfully unlocked: ({})",
         netapp_tmp_file_path.to_str().unwrap_or(INVALID_UTF8)
     );
 

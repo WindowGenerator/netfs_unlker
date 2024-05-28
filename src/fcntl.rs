@@ -20,9 +20,7 @@ use std::os::unix::io::AsRawFd;
 /// if an error occurred during unlocking.
 pub fn unlock(file: &File) -> Result<()> {
     file.metadata()
-        .and_then(|m| {
-            flock(file, libc::LOCK_UN, m.len() as i64)
-        })
+        .and_then(|m| flock(file, libc::LOCK_UN, m.len() as i64))
 }
 
 /// Returns a non-blocking lock error.
@@ -52,7 +50,7 @@ fn flock(file: &File, flag: libc::c_int, size: i64) -> Result<()> {
     let mut fl = libc::flock {
         l_whence: 0, // Offset from the start of the file
         l_start: 0,  // Start of the lock
-        l_len: size,    // Length of the lock; 0 means until EOF
+        l_len: size, // Length of the lock; 0 means until EOF
         l_type: 0,   // Type of lock
         l_pid: 0,    // PID of the process holding the lock
     };
@@ -76,5 +74,39 @@ fn flock(file: &File, flag: libc::c_int, size: i64) -> Result<()> {
             _ => return Err(Error::last_os_error()),
         },
         _ => Ok(()),
+    }
+}
+
+/// Checks if a file is locked.
+///
+/// # Arguments
+///
+/// * `file` - A reference to the `File` to be checked.
+///
+/// # Returns
+///
+/// Returns `true` if the file is locked, `false` otherwise.
+pub fn is_file_locked(file: &File) -> bool {
+    file.metadata()
+        .and_then(|m| is_file_locked_internal(file, m.len() as i64))
+        .unwrap_or(false)
+}
+
+fn is_file_locked_internal(file: &File, size: i64) -> Result<bool> {
+    let fl = libc::flock {
+        l_whence: 0, // Offset from the start of the file
+        l_start: 0,  // Start of the lock
+        l_len: size, // Length of the lock; 0 means until EOF
+        l_type: 0,   // Type of lock
+        l_pid: 0,    // PID of the process holding the lock
+    };
+
+    let ret = unsafe { libc::fcntl(file.as_raw_fd(), libc::F_GETLK, &fl) };
+    match ret {
+        -1 => match Error::last_os_error().raw_os_error() {
+            Some(libc::EACCES) => return Ok(true), // Handle access error as would-block error
+            _ => return Ok(false),
+        },
+        _ => return Ok(true),
     }
 }
