@@ -4,7 +4,7 @@ authors = ["Chudov Sergei <chudov42@gmail.com>"]
 repository = "https://github.com/WindowGenerator/netfs_unlker.git"
 description = "netfs-unlker is a Rust library and command-line interface designed to provide unlock 'fcntl' shared locks in netapp's"
 license = "MIT"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 readme = "README.md"
 
