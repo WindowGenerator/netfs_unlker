@@ -7,7 +7,6 @@
 use clap::Parser;
 use log::LevelFilter;
 use log::{error, info};
-use netfs_unlker;
 use simple_logger::SimpleLogger;
 use std::path::PathBuf;
 use std::process;

@@ -15,8 +15,8 @@ use std::io::{self, Error};
 use std::path::{Path, PathBuf};
 use tempfile::tempdir;
 
-const INVALID_UTF8: &'static str = "[Invalid UTF-8]";
-const DEVIDER: &'static str = "#############################\n";
+const INVALID_UTF8: &str = "[Invalid UTF-8]";
+const DEVIDER: &str = "#############################\n";
 
 /// Repairs all files in the specified directory.
 ///
@@ -140,7 +140,7 @@ fn unlock_netapp_file(file_path: &Path) -> io::Result<()> {
         local_tmp_file_path.to_str().unwrap_or(INVALID_UTF8)
     );
 
-    copy(&file_path, &local_tmp_file_path)?;
+    copy(file_path, &local_tmp_file_path)?;
 
     let tmp_file = File::open(&local_tmp_file_path)?;
     debug!(
@@ -165,7 +165,7 @@ fn unlock_netapp_file(file_path: &Path) -> io::Result<()> {
         netapp_tmp_file_path.to_str().unwrap_or(INVALID_UTF8),
         file_path.to_str().unwrap_or(INVALID_UTF8)
     );
-    rename(&netapp_tmp_file_path, &file_path)?;
+    rename(&netapp_tmp_file_path, file_path)?;
 
     info!(
         "Successfully unlocked: ({})",
