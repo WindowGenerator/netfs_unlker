@@ -69,7 +69,7 @@ jobs:
           echo "created announcement!"
 
           # Upload the manifest to the Github Release™
-          gh release upload ${{ github.ref_name }} dist-manifest.json
+          gh release upload ${{ github.ref_name }} dist-manifest.json --clobber
           echo "uploaded manifest!"
 
           # Disable all the upload-artifacts tasks if we have no actual releases
@@ -113,7 +113,7 @@ jobs:
           jq --raw-output ".artifacts[]?.path | select( . != null )" dist-manifest.json > uploads.txt
           echo "uploading..."
           cat uploads.txt
-          gh release upload ${{ github.ref_name }} $(cat uploads.txt)
+          gh release upload ${{ github.ref_name }} $(cat uploads.txt) --clobber
           echo "uploaded!"
 
   # Mark the Github Release™ as a non-draft now that everything has succeeded!
