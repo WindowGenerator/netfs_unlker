@@ -70,8 +70,8 @@ fn flock(file: &File, flag: libc::c_int, size: i64) -> Result<()> {
     let ret = unsafe { libc::fcntl(file.as_raw_fd(), cmd, &fl) };
     match ret {
         -1 => match Error::last_os_error().raw_os_error() {
-            Some(libc::EACCES) => return Err(lock_error()), // Handle access error as would-block error
-            _ => return Err(Error::last_os_error()),
+            Some(libc::EACCES) => Err(lock_error()), // Handle access error as would-block error
+            _ => Err(Error::last_os_error()),
         },
         _ => Ok(()),
     }
@@ -104,8 +104,8 @@ fn is_file_locked_internal(file: &File, size: i64) -> Result<bool> {
     let ret = unsafe { libc::fcntl(file.as_raw_fd(), libc::F_GETLK, &fl) };
     match ret {
         -1 => match Error::last_os_error().raw_os_error() {
-            Some(libc::EACCES) => return Ok(true), // Handle access error as would-block error
-            _ => return Ok(false),
+            Some(libc::EACCES) => Ok(true), // Handle access error as would-block error
+            _ => Ok(false),
         },
         _ => return Ok(true),
     }
