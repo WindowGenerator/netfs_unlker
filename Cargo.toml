@@ -22,7 +22,7 @@ name = "netfs_unlker"
 path = "src/lib.rs"
 
 [[bin]]
-name = "netfs-unlker"
+name = "netfs_unlker"
 path = "src/main.rs"
 
 # The profile that 'cargo dist' will build with
