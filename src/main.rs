@@ -1,12 +1,13 @@
-//! A command-line tool to repair locked files using the `fcunlock` library.
+//! A command-line tool to repair locked files using the `netfs-unlker` library.
 //!
 //! This tool uses `clap` for command-line argument parsing and `log` for logging.
 //! It provides an option to specify a single file or a directory containing multiple files
-//! for repair operations. The actual repair functions are hypothetically provided by the `fcunlock` library.
+//! for repair operations. The actual repair functions are hypothetically provided by the `netfs-unlker` library.
 
 use clap::Parser;
 use log::LevelFilter;
 use log::{error, info};
+use netfs_unlker;
 use simple_logger::SimpleLogger;
 use std::path::PathBuf;
 use std::process;
@@ -61,7 +62,7 @@ fn main() {
         (Some(file_path), None, _) => {
             info!("Processing single file: {}", file_path.display());
             // Attempt to repair the specified file.
-            if let Err(e) = fcunlock::repair_file(file_path) {
+            if let Err(e) = netfs_unlker::repair_file(file_path) {
                 error!("Failed to repair file: {}", e);
                 process::exit(1);
             }
@@ -70,7 +71,7 @@ fn main() {
         (None, Some(directory_path), &recursive) => {
             info!("Processing directory: {}", directory_path.display());
             // Attempt to repair all files within the specified directory.
-            if let Err(e) = fcunlock::repair_files_in_directory(directory_path, recursive) {
+            if let Err(e) = netfs_unlker::repair_files_in_directory(directory_path, recursive) {
                 error!("Failed to repair files in directory: {}", e);
                 process::exit(1);
             }

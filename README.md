@@ -1,11 +1,11 @@
-# fcunlock
+# netfs-unlker
 
-fcunlock is a Rust library and command-line interface designed to provide unlock 'fcntl' shared locks in netapp's
+netfs-unlker is a Rust library and command-line interface designed to provide unlock 'fcntl' shared locks in netapp's
 
 ## Features
 
 - **Library**: Core functionalities that can be integrated into other Rust applications.
-- **Command-Line Interface**: For users who prefer direct command line access, `fcunlock-cli` is available when built with the appropriate features.
+- **Command-Line Interface**: For users who prefer direct command line access, `netfs-unlker` is available when built with the appropriate features.
 
 ## Getting Started
 
@@ -18,27 +18,27 @@ Make sure you have Rust installed on your machine. If not, you can install Rust 
 Clone the repository:
 
 ```bash
-git clone https://github.com/WindowGenerator/fcunlock.git
-cd fcunlock
+git clone https://github.com/WindowGenerator/netfs_unlker.git
+cd netfs_unlker
 ```
 
 To build the command-line interface, you need to enable the corresponding feature:
 
 ```bash
-cargo build --features build-fcunlock-cli
+cargo build --features build-netfs-unlker-cli
 ```
 Usage
 As a Library
-You can include fcunlock in your Rust projects by adding it to your Cargo.toml:
+You can include netfs-unlker in your Rust projects by adding it to your Cargo.toml:
 
 ```toml
 [dependencies]
-fcunlock = { version = "0.1.0", path = "path_to_fcunlock" }
+netfs_unlker = { version = "0.1.0", path = "path_to_netfs_unlker" }
 ```
 Then, use it in your Rust application:
 
 ```rust
-extern crate fcunlock;
+extern crate netfs_unlker;
 ```
 
 Example usage
@@ -46,16 +46,12 @@ Command Line Interface
 If the CLI has been built, you can run it using:
 
 ```bash
-./target/debug/fcunlock-cli [OPTIONS]
+./target/debug/netfs-unlker [OPTIONS]
 ```
 
 Replace [OPTIONS] with the command line options you provide. (Expand this section based on the actual functionality of your CLI.)
 
-### Dependencies
-clap: For parsing command-line arguments. Included optionally.
-tempfile: For managing temporary files.
-libc: For interfacing with the C standard library.
-Contributing
+### Contributing
 Contributions are welcome! Please feel free to submit pull requests or create issues for bugs and feature requests.
 
 ### License

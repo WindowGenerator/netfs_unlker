@@ -1,29 +1,44 @@
 [package]
-name = "fcunlock"
+name = "netfs-unlker"
 authors = ["Chudov Sergei <chudov42@gmail.com>"]
-description = ""
+repository = "https://github.com/WindowGenerator/netfs_unlker.git"
+description = "netfs-unlker is a Rust library and command-line interface designed to provide unlock 'fcntl' shared locks in netapp's"
 license = "MIT"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = { version = "4.5.4", features = ["derive"], optional = true }
+clap = { version = "4.5.4", features = ["derive"] }
 tempfile = "3.10.1"
 libc = "0.2.153"
 log = "0.4.21"
 simple_logger = "4.3.3"
 
-[features]
-build-fcunlock-cli = ["clap"]
-
 [lib]
-name = "fcunlock"
+name = "netfs_unlker"
 path = "src/lib.rs"
 
 [[bin]]
-name = "fcunlock-cli"
-path = "src/cli.rs"
-required-features = ["build-fcunlock-cli"]
+name = "netfs-unlker"
+path = "src/main.rs"
+
+# The profile that 'cargo dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
+
+# Config for 'cargo dist'
+[workspace.metadata.dist]
+# The preferred cargo-dist version to use in CI (Cargo.toml SemVer syntax)
+cargo-dist-version = "0.0.7"
+# The preferred Rust toolchain to use in CI (rustup toolchain syntax)
+rust-toolchain-version = "1.67.1"
+# CI backends to support (see 'cargo dist generate-ci')
+ci = ["github"]
+# The installers to generate for each app
+installers = []
+# Target platforms to build apps for (Rust target-triple syntax)
+targets = ["x86_64-unknown-linux-gnu"]

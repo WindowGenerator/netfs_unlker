@@ -144,17 +144,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "658bd65b1cf4c852a3cc96f18a8ce7b5640f6b703f905c7d74532294c2a63984"
 
 [[package]]
-name = "fcunlock"
-version = "0.2.1"
-dependencies = [
- "clap",
- "libc",
- "log",
- "simple_logger",
- "tempfile",
-]
-
-[[package]]
 name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -189,6 +178,17 @@ name = "log"
 version = "0.4.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "90ed8c1e510134f979dbc4f070f87d4313098b704861a105fe34231c70a3901c"
+
+[[package]]
+name = "netfs-unlker"
+version = "0.2.2"
+dependencies = [
+ "clap",
+ "libc",
+ "log",
+ "simple_logger",
+ "tempfile",
+]
 
 [[package]]
 name = "num-conv"
