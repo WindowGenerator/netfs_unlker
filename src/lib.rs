@@ -31,6 +31,7 @@ const DEVIDER: &'static str = "#############################\n";
 ///
 /// ```
 /// use std::path::Path;
+/// use netfs_unlker::repair_files_in_directory;
 ///
 /// let dir_path = Path::new("/path/to/directory");
 /// let recursive = false;
@@ -75,6 +76,7 @@ pub fn repair_files_in_directory(directory_path: &Path, recursive: bool) -> io::
 ///
 /// ```
 /// use std::path::Path;
+/// use netfs_unlker::repair_file;
 ///
 /// let file_path = Path::new("/path/to/file.txt");
 /// repair_file(file_path);
@@ -121,7 +123,7 @@ fn unlock_netapp_file(file_path: &Path) -> io::Result<()> {
     let tmp_file_name = file_path
         .file_name()
         .and_then(|f| f.to_str())
-        .map(|s| format!(".tmp.{}.neo4j", s))
+        .map(|s: &str| format!(".tmp.{}", s))
         .ok_or_else(|| {
             error!(
                 "Wrong format of file name ({})",
@@ -167,7 +169,7 @@ fn unlock_netapp_file(file_path: &Path) -> io::Result<()> {
 
     info!(
         "Successfully unlocked: ({})",
-        netapp_tmp_file_path.to_str().unwrap_or(INVALID_UTF8)
+        file_path.to_str().unwrap_or(INVALID_UTF8)
     );
 
     Ok(())
